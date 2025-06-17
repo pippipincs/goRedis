@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"goredis/client"
 	"log"
 	"log/slog"
 	"net"
+	"time"
 )
 
 const defaultListenAddr = ":5001"
@@ -48,7 +51,14 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) handleRawMessage(rawMsg []byte) error {
-	fmt.Println(string(rawMsg))
+	cmd, err := parseCommand(string(rawMsg))
+	if err != nil {
+		return err
+	}
+	switch v := cmd.(type) {
+	case SetCommand:
+		slog.Info("somebody want to set a key in to the hash table", "key", v.key, "val", v.val)
+	}
 	return nil
 }
 
@@ -91,6 +101,19 @@ func (s *Server) handleConn(conn net.Conn) {
 }
 
 func main() {
-	server := NewServer(Config{})
-	log.Fatal(server.Start())
+	go func() {
+		server := NewServer(Config{})
+		log.Fatal(server.Start())
+	}()
+	time.Sleep(time.Second)
+
+	for i := 0; i < 10; i++ {
+		c := client.New("localhost:5001")
+
+		if err := c.Set(context.TODO(), "foo", "bar"); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	time.Sleep(time.Second)
 }
