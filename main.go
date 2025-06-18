@@ -122,17 +122,21 @@ func main() {
 		log.Fatal(server.Start())
 	}()
 	time.Sleep(time.Second)
-	c := client.New("localhost:5001")
+	c, err := client.New("localhost:5001")
+	if err != nil {
+		log.Fatal(err)
+	}
 	for i := 0; i < 10; i++ {
 
 		if err := c.Set(context.TODO(), fmt.Sprintf("foo_%d", i), fmt.Sprintf("bar_%d", i)); err != nil {
 			log.Fatal(err)
 		}
+
 		val, err := c.Get(context.TODO(), fmt.Sprintf("foo_%d", i))
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(val)
+		fmt.Println("got this back=>", val)
 	}
 	time.Sleep(time.Second * 2)
 	fmt.Println(server.kv.data)
