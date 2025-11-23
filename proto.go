@@ -32,6 +32,7 @@ func parseCommand(raw string) (Command, error) {
 	for {
 		v, _, err := rd.ReadValue()
 		if err == io.EOF {
+
 			break
 		}
 		if err != nil {
