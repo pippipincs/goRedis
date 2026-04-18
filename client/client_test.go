@@ -4,48 +4,57 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"testing"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
-/*
-func TestNewClients(t *testing.T) {
-
-		server := NewServer(Config{
-			ListenAddr: *listenAddr,
-		})
-
-		log.Fatal(server.Start())
-
-		nClients := 10
-		wg := sync.WaitGroup{}
-		wg.Add(nClients)
-		for i := 0; i < nClients; i++ {
-			go func(it int) {
-				c, err := New("localhost:5001")
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				defer c.Close()
-
-				key := fmt.Sprintf("client_foo_%d", i)
-				value := fmt.Sprintf("client_bar_%d", i)
-				if err := c.Set(context.TODO(), key, value); err != nil {
-					log.Fatal(err)
-				}
-
-				val, err := c.Get(context.TODO(), key)
-				if err != nil {
-					log.Fatal(err)
-				}
-				fmt.Printf("client %d got this val back =>%s\n", it, val)
-				wg.Done()
-			}(i)
-		}
-		wg.Wait()
+func TestNewClient1(t *testing.T) {
+	c, err := New("localhost:5001")
+	if err != nil {
+		log.Fatal(err)
 	}
-*/
+	defer c.Close()
+	time.Sleep(time.Second)
+
+	if err := c.Set(context.TODO(), "foo", 1); err != nil {
+		log.Fatal(err)
+	}
+
+	val, err := c.Get(context.TODO(), "foo")
+	if err != nil {
+		log.Fatal(err)
+	}
+	n, _ := strconv.Atoi(val)
+	fmt.Println(n)
+	fmt.Println("GET=>", val)
+}
+
+func TestNewClientRedisClient(t *testing.T) {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+	fmt.Println(rdb)
+	fmt.Println("this is working")
+
+	err := rdb.Set(context.Background(), "key", "value", 0).Err()
+	if err != nil {
+		panic(err)
+
+	}
+	/*
+		val, err := rdb.Get(context.TODO(), "key").Result()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(val)
+	*/
+}
+
 func TestNewClient(t *testing.T) {
 	c, err := New("localhost:5001")
 	if err != nil {
