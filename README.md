@@ -32,13 +32,6 @@ make build   # compiles to ./bin/goredis
 make run     # builds and starts the server on :5001
 ```
 
-Or run directly:
-
-```bash
-go build -o bin/goredis .
-./bin/goredis --listenAddr :5001
-```
-
 ### Connect with redis-cli
 
 ```bash
@@ -47,26 +40,7 @@ redis-cli -p 5001  SET hello world
 
 
 ## Architecture
+<img width="732" height="286" alt="image" src="https://github.com/user-attachments/assets/891144a2-0c73-4961-9657-2e87a69a9a94" />
 
-```
-Client (TCP) ──► Accept Loop ──► Peer (read loop + RESP parsing)
-                                        │
-                                        ▼
-                                  Message Channel
-                                        │
-                                        ▼
-                                   Server Loop ──► KV Store (RWMutex)
-                                   (select)
-                                        │
-                                   ┌────┼────┐
-                                   ▼    ▼    ▼
-                                 msg  add   del
-                                      peer  peer
-```
-
-- **Accept loop** — listens for new TCP connections, spawns a goroutine per connection
-- **Peer** — wraps a connection; runs a read loop that parses RESP frames into commands
-- **Server loop** — single goroutine multiplexes commands, peer joins, and peer disconnects via channels
-- **KV store** — mutex-protected `map[string][]byte`
 
 
