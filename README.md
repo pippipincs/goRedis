@@ -16,12 +16,14 @@ A lightweight, Redis-compatible in-memory key-value store built from scratch in 
 | `SET` | `SET key value` | Store a key-value pair |
 | `GET` | `GET key` | Retrieve the value for a key |
 | `HELLO` | `HELLO value` | Handshake/ping |
+| `CLIENT` | `CLIENT value` | Client handshake/identification |
 
 ## Getting Started
 
 ### Prerequisites
 
 - Go 1.24+
+- redis-cli(includeed in redis)
 
 ### Build & Run
 
@@ -40,10 +42,7 @@ go build -o bin/goredis .
 ### Connect with redis-cli
 
 ```bash
-redis-cli -p 5001
-> SET hello world
-> GET hello
-"world"
+redis-cli -p 5001  SET hello world
 ```
 
 
